@@ -14,6 +14,7 @@ export default {
 			isLoading: false,
 			isModalOpen: false,
 			imageUrl: "../assets/images/",
+			currentCharacter: null,
 		};
 	},
 
@@ -23,16 +24,29 @@ export default {
 	},
 
 	methods: {
+		askQuestion() {
+			this.isLoading = true;
+			this.isModalOpen = true;
+
+			// Call API for the answer
+			this.getAnswer().then(() => {
+				this.isLoading = false;
+				this.isModalOpen = false;
+			});
+		},
+
 		getAnswer() {
-			axios
+			return axios
 				.post("http://localhost:8000/api/chat", {
-					nameCharacter: this.character,
+					nameCharacter: this.selectCharacter.name,
 					action: this.question,
 				})
 				.then((response) => {
 					this.answer = response.data.response;
+					this.currentCharacter = this.selectCharacter;
+					this.selectedCharacter = null;
+					this.question = "";
 				});
-			return this.answer;
 		},
 
 		selectCharacter(character) {
@@ -43,30 +57,26 @@ export default {
 			return new URL(this.imageUrl + imageName.image, import.meta.url).href;
 		},
 	},
+
+	computed: {
+		displayedCharacters() {
+			if (!this.currentCharacter) {
+				return this.store.characters;
+			}
+			return this.store.characters.filter(
+				(character) => character.name === this.currentCharacter.name,
+			);
+		},
+	},
 };
 </script>
 
 <template>
-	<!-- <div class="container">
-		<div class="input-charachter">
-			<label>Personaggio: </label>
-			<input
-				v-model="character"
-				placeholder="Inserisci il nome del personaggio" />
-		</div>
-		<div>
-			<label>Domanda: </label>
-			<input v-model="question" placeholder="Cosa vuoi chiedere?" />
-		</div>
-		<button @click="getAnswer">Ottieni Risposta</button>
-		<p>{{ answer }}</p>
-	</div> -->
-
 	<header>
 		<div class="header-text">
 			<h1>Quote from a Bot</h1>
 			<p>
-				Seleziona un personaggio, chiedigli cosa fare<br />e ascolta la sua
+				Seleziona un personaggio, chiedigli cosa fare<br />e leggi la sua
 				risposta
 			</p>
 		</div>
@@ -83,7 +93,9 @@ export default {
 		</div>
 
 		<div v-if="selectedCharacter">
-			<p>Hai scelto {{ selectedCharacter.name }}, qual è la tua domanda?</p>
+			<p>
+				Hai scelto {{ selectedCharacter.name }}, cosa vuoi chiedergli di fare?
+			</p>
 			<input
 				type="text"
 				v-model="question"
@@ -91,49 +103,23 @@ export default {
 			<button @click="askQuestion">Chiedi</button>
 		</div>
 
-		<!-- LOADER -->
-		<div class="loading" v-if="isLoading">
-			<img src="../assets/images/loader.gif" alt="Loader" />
-		</div>
-
 		<!-- MODAL -->
 		<div class="modal" v-if="isModalOpen">
-			<div class="modal-box">
-				<button class="modal-close" @click="closeModal">X</button>
-				<div class="modal-content">
-					<h2></h2>
-					<p></p>
-					<code></code>
-				</div>
+			<!-- SHOWING LOADER -->
+			<div class="loading" v-if="isLoading">
+				<img src="../assets/images/loader.gif" alt="Loader" />
 			</div>
+		</div>
+
+		<div v-if="answer">
+			<h2>Risposta</h2>
+			<p>{{ answer }}</p>
 		</div>
 	</main>
 </template>
 
 <style lang="scss" scoped>
-@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap");
-
-// Variables
-$color-darkred: #620000;
-$color-bgred: #7c3e3e;
-$color-lightred: #9e8f8f;
-$color-grey: #8c8cdf;
-$color-overlay: rgba(197, 177, 123, 0.8);
-
-// Reset
-* {
-	margin: 0;
-	padding: 0;
-	box-sizing: border-box;
-}
-
-// General
-html {
-	font-family: "Space Grotesk", sans-serif;
-	background-color: $color-bgred;
-	color: $color-darkred;
-}
-
+@import "../style.scss";
 // Header
 header {
 	background-color: $color-grey;
@@ -160,32 +146,7 @@ main {
 		flex-wrap: wrap;
 		justify-content: center;
 		align-items: start;
-		gap: 2rem;
-	}
-
-	.characters {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		margin-bottom: 2rem;
-		cursor: pointer;
-
-		.character {
-			width: 10rem;
-			height: 10rem;
-			background-color: $color-lightred;
-			border: 2px solid $color-darkred;
-			border-radius: 50%;
-			overflow: hidden;
-		}
-
-		.image {
-			overflow: hidden;
-
-			img {
-				width: 100%;
-			}
-		}
+		gap: 1rem;
 	}
 }
 

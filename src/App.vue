@@ -12,12 +12,4 @@ export default {
 	<AppShow />
 </template>
 
-<style lang="scss">
-*,
-*::before,
-*::after {
-	margin: 0;
-	padding: 0;
-	box-sizing: border-box;
-}
-</style>
+<style lang="scss"></style>

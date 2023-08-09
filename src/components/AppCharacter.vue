@@ -21,4 +21,30 @@ export default {
 	</div>
 </template>
 
-<style></style>
+<style lang="scss" scoped>
+@import "../style.scss";
+.characters {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin-bottom: 1rem;
+	cursor: pointer;
+
+	.character {
+		width: 8rem;
+		height: 8rem;
+		background-color: $color-lightred;
+		border: 2px solid $color-darkred;
+		border-radius: 50%;
+		overflow: hidden;
+	}
+
+	.image {
+		overflow: hidden;
+
+		img {
+			width: 100%;
+		}
+	}
+}
+</style>

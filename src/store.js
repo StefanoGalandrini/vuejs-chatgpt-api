@@ -11,6 +11,10 @@ export const store = reactive({
 			image: "arwen.png",
 		},
 		{
+			name: "Frodo",
+			image: "frodo.png",
+		},
+		{
 			name: "Galadriel",
 			image: "galadriel.png",
 		},

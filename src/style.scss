@@ -1,9 +1,23 @@
-:root {
-	font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-	line-height: 1.5;
-	font-weight: 400;
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap");
 
-	color-scheme: light dark;
-	color: rgba(255, 255, 255, 0.87);
-	background-color: #242424;
+// Variables
+$color-darkred: #620000;
+$color-bgred: #7c3e3e;
+$color-lightred: #9e8f8f;
+$color-grey: #8c8cdf;
+$color-overlay: rgba(197, 177, 123, 0.8);
+
+*,
+*::before,
+*::after {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+// General
+html {
+	font-family: "Space Grotesk", sans-serif;
+	background-color: $color-bgred;
+	color: $color-darkred;
 }
