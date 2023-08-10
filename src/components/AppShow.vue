@@ -34,15 +34,15 @@ export default {
 		},
 
 		getAnswer() {
+			const prompt = `Sei ${this.selectedCharacter.name}, uno dei protagonisti del libro 'Il Signore degli Anelli', e ti chiedo di ${this.question} con un massimo di 200 caratteri e un minimo di 100 caratteri senza mai uscire dal tuo personaggio`;
+
 			return axios
 				.post("http://localhost:8000/api/chat", {
-					nameCharacter: this.selectedCharacter.name,
-					action: this.question,
+					prompt: prompt,
 				})
 				.then((response) => {
 					this.answer = response.data.response;
 					this.currentCharacter = this.selectedCharacter;
-					// this.selectedCharacter = null;
 					this.question = "";
 				});
 		},
@@ -218,7 +218,7 @@ main {
 .answer {
 	max-width: 50%;
 	margin-inline: auto;
-	font-size: 1.3rem;
+	font-size: 1rem;
 	line-height: 2rem;
 	margin-bottom: 2rem;
 
