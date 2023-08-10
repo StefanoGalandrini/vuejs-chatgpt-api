@@ -6,6 +6,10 @@ export default {
 		handleClick() {
 			this.$emit("selected", this.character);
 		},
+
+		handleClick() {
+			this.$emit("selected", this.character);
+		},
 	},
 };
 </script>
@@ -23,7 +27,9 @@ export default {
 
 <style lang="scss" scoped>
 @import "../style.scss";
+
 .characters {
+	width: 100%;
 	display: flex;
 	flex-direction: column;
 	align-items: center;

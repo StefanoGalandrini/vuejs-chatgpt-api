@@ -7,7 +7,6 @@ export default {
 	data() {
 		return {
 			store,
-			character: "",
 			question: "",
 			answer: "",
 			selectedCharacter: null,
@@ -19,7 +18,6 @@ export default {
 	},
 
 	components: {
-		axios,
 		AppCharacter,
 	},
 
@@ -38,34 +36,37 @@ export default {
 		getAnswer() {
 			return axios
 				.post("http://localhost:8000/api/chat", {
-					nameCharacter: this.selectCharacter.name,
+					nameCharacter: this.selectedCharacter.name,
 					action: this.question,
 				})
 				.then((response) => {
 					this.answer = response.data.response;
-					this.currentCharacter = this.selectCharacter;
-					this.selectedCharacter = null;
+					this.currentCharacter = this.selectedCharacter;
+					// this.selectedCharacter = null;
 					this.question = "";
 				});
 		},
 
 		selectCharacter(character) {
+			this.store.characters.forEach((char) => {
+				if (char !== character) {
+					char.isHidden = true;
+				}
+			});
 			this.selectedCharacter = character;
 		},
 
 		getImageUrl(imageName) {
 			return new URL(this.imageUrl + imageName.image, import.meta.url).href;
 		},
-	},
 
-	computed: {
-		displayedCharacters() {
-			if (!this.currentCharacter) {
-				return this.store.characters;
-			}
-			return this.store.characters.filter(
-				(character) => character.name === this.currentCharacter.name,
-			);
+		resetCharacters() {
+			this.store.characters.forEach((character) => {
+				character.isHidden = false;
+			});
+			this.selectedCharacter = null;
+			this.answer = "";
+			this.question = "";
 		},
 	},
 };
@@ -83,23 +84,25 @@ export default {
 	</header>
 
 	<main>
-		<div class="characters-container">
-			<AppCharacter
-				v-for="character in this.store.characters"
-				:key="character.name"
-				:character="character"
-				:imageUrl="getImageUrl(character)"
-				@selected="selectCharacter" />
+		<div class="characters-container" :class="{noGap: selectedCharacter}">
+			<div v-for="character in store.characters" :key="character.name">
+				<AppCharacter
+					v-if="!character.isHidden"
+					:character="character"
+					:imageUrl="getImageUrl(character)"
+					@selected="selectCharacter" />
+			</div>
 		</div>
 
-		<div v-if="selectedCharacter">
+		<div class="question" v-if="selectedCharacter && !answer">
 			<p>
 				Hai scelto {{ selectedCharacter.name }}, cosa vuoi chiedergli di fare?
 			</p>
 			<input
 				type="text"
 				v-model="question"
-				placeholder="Inserisci la tua domanda qui..." />
+				placeholder="Inserisci la tua domanda qui..."
+				@keyup.enter="askQuestion" />
 			<button @click="askQuestion">Chiedi</button>
 		</div>
 
@@ -111,9 +114,11 @@ export default {
 			</div>
 		</div>
 
-		<div v-if="answer">
-			<h2>Risposta</h2>
-			<p>{{ answer }}</p>
+		<div class="answer" v-if="answer">
+			<p>« {{ answer }} »</p>
+
+			<!-- Reset and Start again -->
+			<button v-if="answer" @click="resetCharacters">Ricomincia</button>
 		</div>
 	</main>
 </template>
@@ -141,12 +146,16 @@ main {
 	.characters-container {
 		max-width: 60vw;
 		margin-inline: auto;
-		padding: 2rem 0;
+		padding-top: 2rem;
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: center;
 		align-items: start;
-		gap: 1rem;
+		gap: 2rem;
+
+		&.noGap {
+			gap: 0;
+		}
 	}
 }
 
@@ -168,10 +177,6 @@ main {
 	}
 }
 
-.loading-hidden {
-	display: none;
-}
-
 // Modal
 .modal {
 	position: fixed;
@@ -191,33 +196,52 @@ main {
 		margin-bottom: 1rem;
 		font-size: 1.25rem;
 	}
+}
 
-	.modal-box {
-		position: relative;
-		background-color: #ffffff;
-		padding: 20px;
-		border: 2px solid $color-darkred;
-		max-width: 35rem;
-		margin: 1.5rem auto;
-	}
+.question {
+	text-align: center;
+	max-width: 50%;
+	margin-inline: auto;
+	font-size: 1.5rem;
+	line-height: 2rem;
+	margin-bottom: 2rem;
 
-	.modal-close {
-		background-color: $color-grey;
-		height: 36px;
-		width: 36px;
-		border-radius: 50%;
-		border: 2px solid $color-darkred;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		cursor: pointer;
-		position: absolute;
-		top: 12px;
-		right: 12px;
+	input {
+		width: 50ch;
+		margin: 1rem 1rem;
+		font-size: 1rem;
+		padding: 0.7rem;
+		border-radius: 20px;
 	}
 }
 
-.modal-hidden {
-	display: none;
+.answer {
+	max-width: 50%;
+	margin-inline: auto;
+	font-size: 1.3rem;
+	line-height: 2rem;
+	margin-bottom: 2rem;
+
+	p {
+		margin: 1.5rem auto;
+	}
+}
+
+button {
+	display: block;
+	margin-inline: auto;
+	font-size: 1rem;
+	border: none;
+	padding: 0.7rem 2rem;
+	border-radius: 100px;
+	background-color: $color-darkgrey;
+	color: $color-grey;
+	transition: all 200ms;
+
+	&:hover {
+		background-color: $color-lightgrey;
+		color: white;
+		box-shadow: 0 0 3px 3px rgba(255, 255, 255, 0.5);
+	}
 }
 </style>
